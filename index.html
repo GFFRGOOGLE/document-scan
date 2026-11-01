@@ -25,26 +25,24 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .ctl-btn{background:var(--paper);border:1px solid var(--frame);border-radius:2px;padding:8px 14px;color:var(--ink);font-family:'Courier New',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px;box-shadow:2px 2px 0 rgba(58,44,28,.2);transition:all .1s;text-decoration:none;}
 .ctl-btn:hover{background:var(--paper-d);transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(58,44,28,.3)}
 .ctl-btn.install{background:var(--ok);color:var(--paper);border-color:var(--ok);}
-.ctl-btn.download{background:var(--gold);color:var(--paper);border-color:var(--gold);}
 .card{background:var(--paper);border:1px solid var(--frame);padding:22px;box-shadow:4px 4px 0 rgba(58,44,28,.22);position:relative}
 .card::before{content:'';position:absolute;inset:5px;border:1px solid var(--frame);pointer-events:none;opacity:.25}
 .card>*{position:relative;z-index:1}
 .section-title{font-family:'Courier New',monospace;font-size:11px;color:var(--ink);letter-spacing:.2em;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:10px;padding-bottom:8px;margin-bottom:12px;border-bottom:1px solid var(--frame);flex-wrap:wrap}
 .section-title .hint{font-size:9.5px;color:var(--ink-soft);font-weight:700;text-transform:none;letter-spacing:.05em}
 .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.btn-action{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 10px;border:2px dashed var(--frame);border-radius:2px;cursor:pointer;color:var(--ink-soft);font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .15s;background:var(--card);-webkit-user-select:none;user-select:none;text-align:center;}
-.btn-action:hover,.btn-action.over{background:var(--paper-d);color:var(--ink);border-color:var(--seal);border-style:solid}
-.btn-action b{color:var(--seal);font-weight:800;}
+.btn-action{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 10px;border:2px dashed var(--frame);border-radius:2px;cursor:pointer;color:var(--seal);font-family:'Courier New',monospace;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;transition:all .15s;background:var(--card);-webkit-user-select:none;user-select:none;text-align:center;}
+.btn-action:hover,.btn-action.over{background:var(--paper-d);border-color:var(--seal);border-style:solid}
 .file-hidden{position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
 .btn-primary{width:100%;padding:16px;margin-top:16px;font-family:'Courier New',monospace;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--paper);background:var(--seal);border:1px solid var(--frame);border-radius:2px;cursor:pointer;box-shadow:3px 3px 0 rgba(58,44,28,.4);transition:transform .1s,box-shadow .1s;display: none;}
 .btn-primary:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(58,44,28,.45)}
 .btn-primary:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(58,44,28,.4)}
+.btn-secondary{width:100%;padding:12px;margin-top:10px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:var(--paper);border:1px solid var(--frame);border-radius:2px;cursor:pointer;box-shadow:2px 2px 0 rgba(58,44,28,.2);display:none;}
 .result{margin-top:22px;text-align:center;display:none;}
-.canvas-wrap{display:inline-block;position:relative;padding:12px;background:var(--paper);border:1px solid var(--frame);box-shadow:4px 4px 0 rgba(58,44,28,.25);max-width: 100%;}
+.canvas-wrap{display:inline-block;position:relative;padding:12px;background:var(--paper);border:1px solid var(--frame);box-shadow:4px 4px 0 rgba(58,44,28,.25);max-width: 100%; margin-bottom: 15px;}
 .canvas-wrap::before{content:'';position:absolute;inset:3px;border:1px solid var(--frame);pointer-events:none;opacity:.25}
 canvas{display:block;max-width:100%;height:auto;background:#fff;border: 1px solid var(--frame);}
-.status{font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;margin-top:14px;min-height:18px;line-height:1.5;color:var(--ink-soft);text-align:center;}
-.status.ok{color:var(--ok)}
+.status{font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;margin-top:14px;min-height:18px;line-height:1.5;color:var(--ok);text-align:center;}
 .loader{display:none;text-align:center;padding:20px;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:var(--seal);}
 .loader::after{content:"";display:inline-block;width:16px;height:16px;border:2px solid var(--frame);border-top-color:var(--seal);border-radius:50%;animation:spin 1s linear infinite;margin-left:10px;vertical-align:middle;}
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -63,7 +61,6 @@ canvas{display:block;max-width:100%;height:auto;background:#fff;border: 1px soli
   <div class="hdr">
     <h1>СКАНЕР<span class="dot">·</span>ДОК</h1>
     <div class="controls">
-      <a href="offline.html" download="Scanner.html" class="ctl-btn download">Скачать офлайн</a>
       <button class="ctl-btn install" id="installBtn" style="display:flex;">Установить</button>
       <button class="ctl-btn" id="theme-toggle">Тёмная тема</button>
     </div>
@@ -73,23 +70,28 @@ canvas{display:block;max-width:100%;height:auto;background:#fff;border: 1px soli
     <div class="section-title">Сканирование <span class="hint">Умная обрезка</span></div>
     <div class="action-grid">
       <label for="cameraInput" class="btn-action">
-        <b>Сделать фото</b>
+        СДЕЛАТЬ ФОТО
       </label>
       <input type="file" id="cameraInput" accept="image/*" capture="environment" class="file-hidden">
 
       <label for="galleryInput" class="btn-action">
-        <b>Из галереи</b>
+        ИЗ ГАЛЕРЕИ
       </label>
       <input type="file" id="galleryInput" accept="image/*" class="file-hidden">
     </div>
-    <div id="loader" class="loader">Анализ пикселей...</div>
+    <div id="loader" class="loader">Загрузка библиотек...</div>
   </div>
 
   <div class="card result" id="resultCard">
+    <div class="section-title">Обнаружение <span class="hint">Желтые края</span></div>
+    <div class="canvas-wrap"><canvas id="previewCanvas"></canvas></div>
+
     <div class="section-title">Результат <span class="hint">Готово</span></div>
     <div class="canvas-wrap"><canvas id="canvas"></canvas></div>
+    
     <button class="btn-primary" id="dlBtn" style="display:block;">Скачать фото</button>
-    <div class="status ok" id="status">Документ успешно обработан.</div>
+    <button class="btn-secondary" id="clearBtn">Очистить</button>
+    <div class="status" id="status">Документ успешно обработан.</div>
   </div>
 
   <!-- ИНСТРУКЦИЯ ПО УСТАНОВКЕ -->
@@ -127,6 +129,10 @@ canvas{display:block;max-width:100%;height:auto;background:#fff;border: 1px soli
 
 <div class="toast" id="toast"></div>
 
+<!-- Подключаем OpenCV и jscanify -->
+<script async src="https://docs.opencv.org/4.8.0/opencv.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jscanify@1.1.4/dist/jscanify.min.js"></script>
+
 <script>
 // ТЕМА
 var themeBtn = document.getElementById('theme-toggle');
@@ -158,7 +164,7 @@ installBtn.addEventListener('click', async () => {
     if (outcome === 'accepted') installBtn.textContent = 'Установлено!';
     deferredPrompt = null;
   } else {
-    alert("Если кнопка не сработала: откройте меню браузера (три точки) и выберите 'Добавить на главный экран'.");
+    alert("Откройте меню браузера (три точки) и выберите 'Добавить на главный экран'.");
   }
 });
 
@@ -167,10 +173,13 @@ const cameraInput = document.getElementById('cameraInput');
 const galleryInput = document.getElementById('galleryInput');
 const loader = document.getElementById('loader');
 const resultCard = document.getElementById('resultCard');
+const previewCanvas = document.getElementById('previewCanvas');
 const canvas = document.getElementById('canvas');
 const dlBtn = document.getElementById('dlBtn');
+const clearBtn = document.getElementById('clearBtn');
 const toastEl = document.getElementById('toast');
 let toastTimer = null;
+let scanner = null;
 
 function showToast(msg){
   toastEl.textContent = msg;
@@ -179,15 +188,35 @@ function showToast(msg){
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
 }
 
+// Инициализация библиотеки
+window.onload = function() {
+  if (typeof cv !== 'undefined') {
+    cv['onRuntimeInitialized'] = () => {
+      scanner = new jscanify();
+      loader.style.display = 'none';
+    };
+  } else {
+    loader.textContent = "Ожидание сети...";
+  }
+};
+
 function handleFileSelect(e) {
   const file = e.target.files[0];
   if (!file) return;
+  
+  if (!scanner) {
+    showToast("Библиотека сканера загружается. Подождите пару секунд...");
+    return;
+  }
+
   loader.style.display = 'block';
+  loader.textContent = 'Анализ документа...';
   resultCard.style.display = 'none';
+
   const reader = new FileReader();
   reader.onload = (event) => {
     const img = new Image();
-    img.onload = () => { setTimeout(() => scanDocumentOffline(img), 100); };
+    img.onload = () => { setTimeout(() => processImage(img), 50); };
     img.src = event.target.result;
   };
   reader.readAsDataURL(file);
@@ -197,49 +226,53 @@ function handleFileSelect(e) {
 cameraInput.addEventListener('change', handleFileSelect);
 galleryInput.addEventListener('change', handleFileSelect);
 
-function scanDocumentOffline(img) {
+function processImage(img) {
   try {
-    const scanSize = 600;
-    let ratio = Math.min(scanSize / img.width, scanSize / img.height, 1);
-    let sw = Math.round(img.width * ratio);
-    let sh = Math.round(img.height * ratio);
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = sw;
-    tempCanvas.height = sh;
-    const tCtx = tempCanvas.getContext('2d');
-    tCtx.drawImage(img, 0, 0, sw, sh);
-    const imgData = tCtx.getImageData(0, 0, sw, sh);
-    const data = imgData.data;
-    const bgR = data[0], bgG = data[1], bgB = data[2];
-    const threshold = 45;
-    let minX = sw, minY = sh, maxX = 0, maxY = 0;
-    let found = false;
-    for (let y = 0; y < sh; y += 2) {
-      for (let x = 0; x < sw; x += 2) {
-        const i = (y * sw + x) * 4;
-        const diff = Math.abs(data[i] - bgR) + Math.abs(data[i+1] - bgG) + Math.abs(data[i+2] - bgB);
-        if (diff > threshold) {
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-          found = true;
-        }
-      }
-    }
-    if (!found) { minX = 0; minY = 0; maxX = sw; maxY = sh; }
-    const pad = 10;
-    let realMinX = Math.max(0, (minX - pad) / ratio);
-    let realMinY = Math.max(0, (minY - pad) / ratio);
-    let realW = Math.min(img.width, (maxX - minX + pad*2) / ratio);
-    let realH = Math.min(img.height, (maxY - minY + pad*2) / ratio);
-    canvas.width = realW;
-    canvas.height = realH;
+    // 1. ПОИСК КРАЕВ И РИСОВАНИЕ ЖЕЛТОЙ РАМКИ
+    const points = scanner.getCornerPoints(img);
+    
+    if (!points) throw new Error("No document found");
+
+    previewCanvas.width = img.width;
+    previewCanvas.height = img.height;
+    const pCtx = previewCanvas.getContext('2d');
+    
+    pCtx.drawImage(img, 0, 0);
+
+    pCtx.beginPath();
+    pCtx.moveTo(points.topLeftCorner.x, points.topLeftCorner.y);
+    pCtx.lineTo(points.topRightCorner.x, points.topRightCorner.y);
+    pCtx.lineTo(points.bottomRightCorner.x, points.bottomRightCorner.y);
+    pCtx.lineTo(points.bottomLeftCorner.x, points.bottomLeftCorner.y);
+    pCtx.closePath();
+    
+    pCtx.lineWidth = Math.max(6, img.width / 100);
+    pCtx.strokeStyle = '#FFD700'; // Желтый
+    pCtx.stroke();
+    
+    pCtx.fillStyle = 'rgba(255, 215, 0, 0.15)';
+    pCtx.fill();
+
+    // 2. ВЫРЕЗАНИЕ И ВЫПРЯМЛЕНИЕ
+    const extractedCanvas = scanner.extractPaper(img, img.width, img.height);
+    canvas.width = extractedCanvas.width;
+    canvas.height = extractedCanvas.height;
     const ctx = canvas.getContext('2d');
-    ctx.filter = 'grayscale(100%) contrast(200%) brightness(115%)';
-    ctx.drawImage(img, realMinX, realMinY, realW, realH, 0, 0, realW, realH);
+    ctx.drawImage(extractedCanvas, 0, 0);
+
+    // 3. Легкое осветление
+    let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = Math.min(255, data[i] * 1.1);
+      data[i+1] = Math.min(255, data[i+1] * 1.1);
+      data[i+2] = Math.min(255, data[i+2] * 1.1);
+    }
+    ctx.putImageData(imgData, 0, 0);
+
     loader.style.display = 'none';
     resultCard.style.display = 'block';
+    clearBtn.style.display = 'block';
     
     dlBtn.onclick = () => {
       canvas.toBlob((blob) => {
@@ -256,9 +289,21 @@ function scanDocumentOffline(img) {
     };
   } catch (err) {
     loader.style.display = 'none';
-    showToast("Ошибка: Не удалось обработать фото.");
+    showToast("Не удалось найти документ. Сфотографируйте на контрастном фоне.");
   }
 }
+
+// ОЧИСТКА
+clearBtn.onclick = () => {
+  canvas.width = 0;
+  canvas.height = 0;
+  previewCanvas.width = 0;
+  previewCanvas.height = 0;
+  resultCard.style.display = 'none';
+  cameraInput.value = '';
+  galleryInput.value = '';
+  showToast("История очищена");
+};
 </script>
 </body>
 </html>
