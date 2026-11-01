@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Сканер документов (Офлайн)</title>
+<meta name="theme-color" content="#ece2cd" id="meta-theme">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='108' fill='%23ece2cd'/%3E%3Ctext x='256' y='358' font-size='300' text-anchor='middle' font-family='Georgia' font-weight='700' fill='%238b2019'%3EX%3C/text%3E%3C/svg%3E">
+<style>
+/* Твой CSS */
+:root{--paper:#ece2cd;--paper-d:#ddd0b2;--ink:#26201a;--ink-soft:#5a4a38;--seal:#8b2019;--gold:#9c7a2c;--frame:#3a2c1c;--card:rgba(58,44,28,.05);--ok:#4a7a3c;color-scheme:light}
+:root.dark{--paper:#1a1714;--paper-d:#24201a;--ink:#e8dfd0;--ink-soft:#a89880;--seal:#d4513f;--gold:#d4a94c;--frame:#4a3a28;--card:rgba(232,223,208,.05);--ok:#6a9c5a;color-scheme:dark}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{min-height:100%;background:var(--paper);transition:background .3s}
+body{min-height:100vh;min-height:100dvh;width:100%;font-family:Georgia,serif;color:var(--ink);background:var(--paper);transition:background .3s,color .3s;padding:22px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 50% 40% at 20% 15%,rgba(180,140,80,.15),transparent 70%),radial-gradient(ellipse 55% 45% at 80% 85%,rgba(140,100,50,.12),transparent 70%)}
+:root.dark body::before{opacity:.3}
+.frame{position:fixed;inset:12px;border:1px solid var(--frame);opacity:.4;pointer-events:none;z-index:1}
+.frame::before{content:'';position:absolute;inset:4px;border:1px solid var(--frame);opacity:.5}
+.page{position:relative;z-index:10;max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px}
+.hdr h1{font-family:Georgia,serif;font-size:clamp(20px,4vw,32px);font-weight:700;letter-spacing:.14em;color:var(--ink);text-shadow:3px 3px 0 rgba(139,32,25,.15);cursor:pointer;user-select:none}
+.hdr h1 .dot{color:var(--seal)}
+.hdr .controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ctl-btn{background:var(--paper);border:1px solid var(--frame);border-radius:2px;padding:8px 14px;color:var(--ink);font-family:'Courier New',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px;box-shadow:2px 2px 0 rgba(58,44,28,.2);transition:all .1s;text-decoration:none;}
+.ctl-btn:hover{background:var(--paper-d);transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(58,44,28,.3)}
+.card{background:var(--paper);border:1px solid var(--frame);padding:22px;box-shadow:4px 4px 0 rgba(58,44,28,.22);position:relative}
+.card::before{content:'';position:absolute;inset:5px;border:1px solid var(--frame);pointer-events:none;opacity:.25}
+.card>*{position:relative;z-index:1}
+.section-title{font-family:'Courier New',monospace;font-size:11px;color:var(--ink);letter-spacing:.2em;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:10px;padding-bottom:8px;margin-bottom:12px;border-bottom:1px solid var(--frame);flex-wrap:wrap}
+.section-title .hint{font-size:9.5px;color:var(--ink-soft);font-weight:700;text-transform:none;letter-spacing:.05em}
+.drop{display:block;border:2px dashed var(--frame);border-radius:2px;padding:32px 18px;text-align:center;cursor:pointer;color:var(--ink-soft);font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .15s;background:var(--card);-webkit-user-select:none;user-select:none;margin-top: 10px;}
+.drop:hover,.drop.over{background:var(--paper-d);color:var(--ink);border-color:var(--seal);border-style:solid}
+.drop b{color:var(--seal);font-weight:800}
+.drop .sub{display:block;margin-top:6px;font-size:9.5px;text-transform:none;letter-spacing:.05em;color:var(--ink-soft)}
+.file-hidden{position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.btn-primary{width:100%;padding:16px;margin-top:16px;font-family:'Courier New',monospace;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--paper);background:var(--seal);border:1px solid var(--frame);border-radius:2px;cursor:pointer;box-shadow:3px 3px 0 rgba(58,44,28,.4);transition:transform .1s,box-shadow .1s;display: none;}
+.btn-primary:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(58,44,28,.45)}
+.btn-primary:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(58,44,28,.4)}
+.result{margin-top:22px;text-align:center;display:none;}
+.canvas-wrap{display:inline-block;position:relative;padding:12px;background:var(--paper);border:1px solid var(--frame);box-shadow:4px 4px 0 rgba(58,44,28,.25);max-width: 100%;}
+.canvas-wrap::before{content:'';position:absolute;inset:3px;border:1px solid var(--frame);pointer-events:none;opacity:.25}
+canvas{display:block;max-width:100%;height:auto;background:#fff;border: 1px solid var(--frame);}
+.status{font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;margin-top:14px;min-height:18px;line-height:1.5;color:var(--ink-soft);text-align:center;}
+.status.ok{color:var(--ok)}
+.loader{display:none;text-align:center;padding:20px;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:var(--seal);}
+.loader::after{content:"";display:inline-block;width:16px;height:16px;border:2px solid var(--frame);border-top-color:var(--seal);border-radius:50%;animation:spin 1s linear infinite;margin-left:10px;vertical-align:middle;}
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-14px);background:var(--ink);color:var(--paper);padding:11px 24px;font-family:'Courier New',monospace;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;z-index:1000;opacity:0;transition:all .3s;pointer-events:none;box-shadow:3px 3px 0 rgba(58,44,28,.4);max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:520px){ body{padding:16px} .frame{inset:8px} .card{padding:16px} .hdr h1{font-size:20px;letter-spacing:.08em} .ctl-btn{padding:6px 10px;font-size:10px} }
+</style>
+</head>
+<body>
+<div class="frame"></div>
+
+<div class="page">
+  <div class="hdr">
+    <h1>ОФЛАЙН<span class="dot">·</span>СКАНЕР</h1>
+    <div class="controls">
+      <button class="ctl-btn" id="theme-toggle">Тёмная тема</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Сканирование <span class="hint">Умная обрезка</span></div>
+    <label class="drop" for="fileInput" id="dropLabel">
+      <b>Нажмите</b> или перетащите фото<br>
+      <span class="sub">Скрипт сам найдет границы листа и осветлит его</span>
+    </label>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" class="file-hidden">
+    <div id="loader" class="loader">Анализ пикселей...</div>
+  </div>
+
+  <div class="card result" id="resultCard">
+    <div class="section-title">Результат <span class="hint">Готово</span></div>
+    <div class="canvas-wrap"><canvas id="canvas"></canvas></div>
+    <button class="btn-primary" id="dlBtn" style="display:block;">Скачать фото</button>
+    <div class="status ok" id="status">Документ успешно обработан.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ТЕМА
+var themeBtn = document.getElementById('theme-toggle');
+var metaTheme = document.getElementById('meta-theme');
+var savedTheme = 'light';
+try { savedTheme = localStorage.getItem('scanner_theme') || 'light'; } catch(e){}
+function applyTheme(t){
+  document.documentElement.classList.toggle('dark', t === 'dark');
+  themeBtn.textContent = t === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+  if (metaTheme) metaTheme.content = t === 'dark' ? '#1a1714' : '#ece2cd';
+  try { localStorage.setItem('scanner_theme', t); } catch(e){}
+}
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', function(){
+  applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+});
+
+// СКАНЕР
+const fileInput = document.getElementById('fileInput');
+const loader = document.getElementById('loader');
+const resultCard = document.getElementById('resultCard');
+const canvas = document.getElementById('canvas');
+const dlBtn = document.getElementById('dlBtn');
+const toastEl = document.getElementById('toast');
+let toastTimer = null;
+
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
+}
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  loader.style.display = 'block';
+  resultCard.style.display = 'none';
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => { setTimeout(() => scanDocumentOffline(img), 100); };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function scanDocumentOffline(img) {
+  try {
+    const scanSize = 600;
+    let ratio = Math.min(scanSize / img.width, scanSize / img.height, 1);
+    let sw = Math.round(img.width * ratio);
+    let sh = Math.round(img.height * ratio);
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = sw;
+    tempCanvas.height = sh;
+    const tCtx = tempCanvas.getContext('2d');
+    tCtx.drawImage(img, 0, 0, sw, sh);
+    const imgData = tCtx.getImageData(0, 0, sw, sh);
+    const data = imgData.data;
+    const bgR = data[0], bgG = data[1], bgB = data[2];
+    const threshold = 45;
+    let minX = sw, minY = sh, maxX = 0, maxY = 0;
+    let found = false;
+    for (let y = 0; y < sh; y += 2) {
+      for (let x = 0; x < sw; x += 2) {
+        const i = (y * sw + x) * 4;
+        const diff = Math.abs(data[i] - bgR) + Math.abs(data[i+1] - bgG) + Math.abs(data[i+2] - bgB);
+        if (diff > threshold) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+          found = true;
+        }
+      }
+    }
+    if (!found) { minX = 0; minY = 0; maxX = sw; maxY = sh; }
+    const pad = 10;
+    let realMinX = Math.max(0, (minX - pad) / ratio);
+    let realMinY = Math.max(0, (minY - pad) / ratio);
+    let realW = Math.min(img.width, (maxX - minX + pad*2) / ratio);
+    let realH = Math.min(img.height, (maxY - minY + pad*2) / ratio);
+    canvas.width = realW;
+    canvas.height = realH;
+    const ctx = canvas.getContext('2d');
+    ctx.filter = 'grayscale(100%) contrast(200%) brightness(115%)';
+    ctx.drawImage(img, realMinX, realMinY, realW, realH, 0, 0, realW, realH);
+    loader.style.display = 'none';
+    resultCard.style.display = 'block';
+    
+    dlBtn.onclick = () => {
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `scan_${Date.now()}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast("Фото сохранено!");
+      }, 'image/jpeg', 0.95);
+    };
+  } catch (err) {
+    loader.style.display = 'none';
+    showToast("Ошибка: Не удалось обработать фото.");
+  }
+}
+</script>
+</body>
+</html>
