@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Сканер документов</title>
 <meta name="theme-color" content="#ece2cd" id="meta-theme">
-<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoi0KHQutCw0L3QtdGAINC00L7QutGD0LzQtdC90YLQvtCyIiwic2hvcnRfbmFtZSI6ItCh0LrQsNC90LXRgCIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZWNlMmNkIiwidGhlbWVfY29sb3IiOiIjZWNlMmNkIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDt1dGY4LCUzQ3N2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiUzRSUzQ3JlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiNlY2UyY2QiIHJ4PSIxMDgiLyUzRSUzQ3RleHQgeD0iMjU2IiB5PSIzODAiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhIiBmb250LXNpemU9IjQwMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiM4YjIwMTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiJTNFWCUzQy90ZXh0JTNFJTNDcmVjdCB4PSIzMjAiIHk9IjMyMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNjYzM0MjMiIHJ4PSIyMCIvJTNFJTNDdGV4dCB4PSIzOTUiIHk9IjQzMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIlM0UlRDAlQUYlM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjUxMnxNTEIifV19">
+<link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='108' fill='%23ece2cd'/%3E%3Ctext x='256' y='358' font-size='300' text-anchor='middle' font-family='Georgia' font-weight='700' fill='%238b2019'%3EX%3C/text%3E%3C/svg%3E">
 <style>
-/* Твой CSS (без изменений) */
 :root{--paper:#ece2cd;--paper-d:#ddd0b2;--ink:#26201a;--ink-soft:#5a4a38;--seal:#8b2019;--gold:#9c7a2c;--frame:#3a2c1c;--card:rgba(58,44,28,.05);--ok:#4a7a3c;color-scheme:light}
 :root.dark{--paper:#1a1714;--paper-d:#24201a;--ink:#e8dfd0;--ink-soft:#a89880;--seal:#d4513f;--gold:#d4a94c;--frame:#4a3a28;--card:rgba(232,223,208,.05);--ok:#6a9c5a;color-scheme:dark}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -25,7 +24,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .hdr .controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .ctl-btn{background:var(--paper);border:1px solid var(--frame);border-radius:2px;padding:8px 14px;color:var(--ink);font-family:'Courier New',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px;box-shadow:2px 2px 0 rgba(58,44,28,.2);transition:all .1s;text-decoration:none;}
 .ctl-btn:hover{background:var(--paper-d);transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(58,44,28,.3)}
-.ctl-btn.install{background:var(--ok);color:var(--paper);border-color:var(--ok);display:none;}
+.ctl-btn.install{background:var(--ok);color:var(--paper);border-color:var(--ok);}
 .ctl-btn.download{background:var(--gold);color:var(--paper);border-color:var(--gold);}
 .card{background:var(--paper);border:1px solid var(--frame);padding:22px;box-shadow:4px 4px 0 rgba(58,44,28,.22);position:relative}
 .card::before{content:'';position:absolute;inset:5px;border:1px solid var(--frame);pointer-events:none;opacity:.25}
@@ -51,6 +50,10 @@ canvas{display:block;max-width:100%;height:auto;background:#fff;border: 1px soli
 @keyframes spin { to { transform: rotate(360deg); } }
 .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-14px);background:var(--ink);color:var(--paper);padding:11px 24px;font-family:'Courier New',monospace;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;z-index:1000;opacity:0;transition:all .3s;pointer-events:none;box-shadow:3px 3px 0 rgba(58,44,28,.4);max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Стили для инструкции */
+.instruction-list { font-size: 13px; line-height: 1.6; color: var(--ink); }
+.instruction-list b { color: var(--seal); }
+.instruction-list li { margin-bottom: 8px; margin-left: 16px; }
 @media(max-width:520px){ body{padding:16px} .frame{inset:8px} .card{padding:16px} .hdr h1{font-size:20px;letter-spacing:.08em} .ctl-btn{padding:6px 10px;font-size:10px} }
 </style>
 </head>
@@ -62,7 +65,7 @@ canvas{display:block;max-width:100%;height:auto;background:#fff;border: 1px soli
     <h1>СКАНЕР<span class="dot">·</span>ДОК</h1>
     <div class="controls">
       <a href="offline.html" download="Scanner.html" class="ctl-btn download">Скачать офлайн</a>
-      <button class="ctl-btn install" id="installBtn">Установить</button>
+      <button class="ctl-btn install" id="installBtn" style="display:flex;">Установить</button>
       <button class="ctl-btn" id="theme-toggle">Тёмная тема</button>
     </div>
   </div>
@@ -82,6 +85,43 @@ canvas{display:block;max-width:100%;height:auto;background:#fff;border: 1px soli
     <div class="canvas-wrap"><canvas id="canvas"></canvas></div>
     <button class="btn-primary" id="dlBtn" style="display:block;">Скачать фото</button>
     <div class="status ok" id="status">Документ успешно обработан.</div>
+  </div>
+
+  <!-- ИНСТРУКЦИЯ ПО УСТАНОВКЕ -->
+  <div class="card">
+    <div class="section-title">Как установить <span class="hint">На рабочий стол</span></div>
+    <div class="instruction-list">
+      <p style="margin-bottom:12px; color:var(--ink-soft);">Чтобы приложение работало как обычная программа с иконкой, добавьте его на главный экран:</p>
+      
+      <div style="margin-bottom:12px;">
+        <b>🤖 Android (Chrome / Samsung):</b>
+        <ul>
+          <li>Нажмите зеленую кнопку <b>«Установить»</b> вверху.</li>
+          <li>Или откройте меню (три точки) -> <b>«Добавить на главный экран»</b>.</li>
+        </ul>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <b>🍏 iPhone / iPad (Только Safari):</b>
+        <ul>
+          <li>Нажмите кнопку <b>«Поделиться»</b> (квадрат со стрелкой).</li>
+          <li>Пролистайте вниз и выберите <b>«На экран "Домой"»</b>.</li>
+        </ul>
+      </div>
+
+      <div>
+        <b>💻 ПК (Windows / Mac):</b>
+        <ul>
+          <li>В Chrome или Edge нажмите на иконку установки в адресной строке.</li>
+          <li>Или меню браузера -> <b>«Установить приложение»</b>.</li>
+        </ul>
+      </div>
+      
+      <hr style="border:none; border-top:1px dashed var(--frame); margin:16px 0; opacity:0.5;">
+      <p style="font-size:11px; color:var(--ink-soft);">
+        <b>Скачали офлайн-версию?</b> Просто откройте скачанный файл в браузере и также выберите «Добавить на главный экран».
+      </p>
+    </div>
   </div>
 </div>
 
@@ -104,22 +144,21 @@ themeBtn.addEventListener('click', function(){
   applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
 });
 
-// УСТАНОВКА (PWA)
+// УСТАНОВКА
 let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  installBtn.style.display = 'flex'; 
 });
 installBtn.addEventListener('click', async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') installBtn.style.display = 'none';
+    if (outcome === 'accepted') installBtn.textContent = 'Установлено!';
     deferredPrompt = null;
   } else {
-    showToast("Откройте меню браузера -> 'Добавить на главный экран'");
+    alert("Если кнопка не сработала: откройте меню браузера (три точки) и выберите 'Добавить на главный экран'.");
   }
 });
 
