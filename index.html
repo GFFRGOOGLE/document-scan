@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='108' fill='%23ece2cd'/%3E%3Ctext x='256' y='358' font-size='300' text-anchor='middle' font-family='Georgia' font-weight='700' fill='%238b2019'%3EX%3C/text%3E%3C/svg%3E">
 <style>
-/* Твой винтажный CSS */
+/* Винтажный CSS */
 :root{--paper:#ece2cd;--paper-d:#ddd0b2;--ink:#26201a;--ink-soft:#5a4a38;--seal:#8b2019;--gold:#9c7a2c;--frame:#3a2c1c;--card:rgba(58,44,28,.05);--ok:#4a7a3c;color-scheme:light}
 :root.dark{--paper:#1a1714;--paper-d:#24201a;--ink:#e8dfd0;--ink-soft:#a89880;--seal:#d4513f;--gold:#d4a94c;--frame:#4a3a28;--card:rgba(232,223,208,.05);--ok:#6a9c5a;color-scheme:dark}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -70,6 +70,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 <body>
 <div class="frame"></div>
 
+<!-- ИНТЕРФЕЙС КАМЕРЫ -->
 <div id="camera-ui">
   <video id="videoFeed" autoplay playsinline></video>
   <div class="camera-overlay">
@@ -98,7 +99,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
     <div class="action-grid" id="actionGrid">
       <div class="btn-action" id="openCameraBtn">СДЕЛАТЬ ФОТО</div>
       <label for="galleryInput" class="btn-action">ИЗ ГАЛЕРЕИ</label>
-      <input type="file" id="galleryInput" accept="image/*" class="file-hidden">
+      <input type="file" id="galleryInput" accept="image/*" class="hidden">
     </div>
     
     <div id="loader" class="loader">Нейросеть обрабатывает...</div>
@@ -140,7 +141,7 @@ function applyTheme(t){
 applyTheme(savedTheme);
 themeBtn.addEventListener('click', function(){ applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'); });
 
-// УСТАНОВКА
+// УСТАНОВКА (PWA)
 let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
@@ -206,62 +207,103 @@ takePhotoBtn.addEventListener('click', () => {
 galleryInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  
   const reader = new FileReader();
-  reader.onload = (event) => {
-    processWithAI(event.target.result);
-  };
+  reader.onload = (event) => { processWithAI(event.target.result); };
   reader.readAsDataURL(file);
   e.target.value = '';
 });
 
-// --- ОТПРАВКА В POLLINATIONS AI ---
-function processWithAI(base64Image) {
+// --- ПОДГОТОВКА И СЖАТИЕ ФОТО (ОЧЕНЬ ВАЖНО) ---
+function prepareImage(base64Image) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      const MAX_SIZE = 1024; // Ограничиваем размер, чтобы не перегружать сервер ИИ
+      
+      if (width > height && width > MAX_SIZE) {
+        height *= MAX_SIZE / width;
+        width = MAX_SIZE;
+      } else if (height > MAX_SIZE) {
+        width *= MAX_SIZE / height;
+        height = MAX_SIZE;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Возвращаем чистый base64 без префикса
+      resolve(canvas.toDataURL('image/jpeg', 0.8).split(',')[1]);
+    };
+    img.src = base64Image;
+  });
+}
+
+// --- ОТПРАВКА В POLLINATIONS AI (С ПОВТОРАМИ) ---
+async function processWithAI(base64Image) {
   loader.style.display = 'block';
   resultCard.style.display = 'none';
+  document.getElementById('status').textContent = 'Оптимизация фото...';
 
-  // Очищаем base64 от префикса
-  const cleanB64 = base64Image.replace(/^data:image\/[a-z]+;base64,/, "");
-
-  // Промпт (на английском, чтобы нейросеть поняла)
-  const prompt = "Document scan, perfectly cropped, flat perspective, white background, clear text, high quality";
+  // Сжимаем фото перед отправкой
+  const cleanB64 = await prepareImage(base64Image);
   
-  // Формируем URL для Image-to-Image в Pollinations
+  const prompt = "Document scan, perfectly cropped, flat perspective, white background, clear text, high quality";
   const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?image=${encodeURIComponent(cleanB64)}&nologo=true`;
 
-  // Загружаем результат (используем img тег для обхода CORS при отображении)
-  resultImg.src = url;
-  
-  resultImg.onload = () => {
-    loader.style.display = 'none';
-    resultCard.style.display = 'block';
-    clearBtn.style.display = 'block';
-    document.getElementById('status').textContent = "ИИ успешно обработал документ.";
-    
-    // Скачивание (используем fetch, чтобы сохранить файл)
-    dlBtn.onclick = async () => {
-      try {
-        showToast("Скачивание...");
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `ai_scan_${Date.now()}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showToast("Фото сохранено!");
-      } catch (e) {
-        // Если fetch блокируется, открываем в новой вкладке (пользователь сохранит вручную)
-        window.open(url, '_blank');
+  // Пробуем до 3 раз с паузой в 5 секунд
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      document.getElementById('status').textContent = `Нейросеть работает (Попытка ${attempt}/3)...`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Сервер занят: ${response.status}`);
       }
-    };
-  };
 
-  resultImg.onerror = () => {
-    loader.style.display = 'none';
-    showToast("Ошибка ИИ. Попробуйте другое фото или подождите.");
-  };
+      const blob = await response.blob();
+      
+      // Проверка, что вернулась именно картинка
+      if (!blob.type.startsWith('image/')) {
+        throw new Error("Ошибка: сервер вернул не картинку.");
+      }
+
+      const imageUrl = URL.createObjectURL(blob);
+      resultImg.src = imageUrl;
+      
+      loader.style.display = 'none';
+      resultCard.style.display = 'block';
+      clearBtn.style.display = 'block';
+      document.getElementById('status').textContent = "ИИ успешно обработал документ.";
+
+      dlBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = imageUrl;
+        a.download = `ai_scan_${Date.now()}.jpg`;
+        a.click();
+        showToast("Фото сохранено!");
+      };
+      
+      return; // Успех! Выходим из цикла.
+
+    } catch (error) {
+      console.warn(`Попытка ${attempt} не удалась:`, error);
+      if (attempt < 3) {
+        document.getElementById('status').textContent = `Сервер занят. Ждем 5 сек...`;
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Ждем 5 секунд
+      }
+    }
+  }
+
+  // Если все 3 попытки провалились
+  loader.style.display = 'none';
+  document.getElementById('status').textContent = "Ошибка. Сервер ИИ перегружен.";
+  showToast("Сервер перегружен. Попробуйте позже.");
 }
 
 // ОЧИСТКА
